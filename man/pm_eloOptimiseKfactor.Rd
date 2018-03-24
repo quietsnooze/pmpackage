@@ -7,7 +7,7 @@
 pm_eloOptimiseKfactor(eloSamp)
 }
 \arguments{
-\item{eloSamp}{A dataset to optimise over}
+\item{eloSamp}{A dataset to optimise over.}
 }
 \value{
 A list of 3 parameters: Cfactor, Coffset, Cshape
