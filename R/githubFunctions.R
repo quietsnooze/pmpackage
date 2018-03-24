@@ -1,13 +1,4 @@
-system('git config --global user.email "github@petermcintyre.me.uk"')
-system('git config --global user.name "quietsnooze"')
-system('git config --global --list')
-
-# find the packages
-#upstream is used for forking packages... and maybe I've got the synatx wrong!
-#system('git remote add upstream https://github.com/quietsnooze/pmpackage')
-#system('git remote rm upstream')
-system('git remote add origin git@github.com:quietsnooze/pmpackage.git')
-system('git remote -v')
+#http://r-pkgs.had.co.nz/git.html
 
 
 #' pm_gh_config - configure github with username and email
