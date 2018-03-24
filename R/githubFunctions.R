@@ -15,8 +15,6 @@ pm_gh_config <- function(github_username,
   system(paste0('git config --global user.email "',github_email,'"'))
   system(paste0('git config --global user.name "',github_username,'"'))
   system('git config --global --list')
-  system('ls -l')
-  system('pwd')
 }
 
 
