@@ -387,7 +387,7 @@ pm_eloShowWinProbForScoreDiff <- function(scoreDiff){
 #'
 #' Return a set of optimal Kfactors
 #'
-#' @param eloSamp A dataset to optimise over
+#' @param eloSamp A dataset to optimise over.
 #'
 #' @return A list of 3 parameters: Cfactor, Coffset, Cshape
 #'
