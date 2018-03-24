@@ -123,9 +123,12 @@ pm_eloTidifyDataframe = function(eloDataframe){
     dplyr::select(c('player_name',playerEloVars))
 
   opponents = eloDataframe %>%
-    dplyr::select(c('opponent_name',opponentEloVars))
+    dplyr::select(c('opponent_name',opponentEloVars)) %>%
+    dplyr::mutate(actualResult = 1 - actualResult)
 
-  names(opponents) = names(opponents) %>% stringr::str_replace_all(pattern = 'opponent', replacement = 'player')
+  names(opponents) = names(opponents) %>% stringr::str_replace_all(pattern = 'opponent', replacement = 'pm_elo_temp_name')
+  names(opponents) = names(opponents) %>% stringr::str_replace_all(pattern = 'player', replacement = 'opponent')
+  names(opponents) = names(opponents) %>% stringr::str_replace_all(pattern = 'pm_elo_temp_name', replacement = 'player')
 
   both = players %>%
     dplyr::bind_rows(opponents)
