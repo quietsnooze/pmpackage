@@ -1,6 +1,9 @@
 devtools::use_package('tidyverse')
 devtools::use_package('readxl')
 devtools::use_package('janitor')
+devtools::use_package('purr')
+devtools::use_package('tibble')
+devtools::use_package('stringr')
 
 
 
@@ -90,13 +93,13 @@ pm_tennis_fetchDataset <- function(myyear,
 
   dfMatch <- readxl::read_excel(fpath, guess_max = Inf) %>%
     janitor::clean_names() %>%
-    as.tibble() %>%
-    select(-one_of(tolower(extraVars))) %>%
-    rename(match_date = date,
+    tibble::as.tibble() %>%
+    dplyr::select(-one_of(tolower(extraVars))) %>%
+    dplyr::rename(match_date = date,
            series = tier,
            match_location = location) %>%
-    filter(!is.na(match_date)) %>%
-    mutate(w_rank = as.integer(w_rank),
+    dplyr::filter(!is.na(match_date)) %>%
+    dplyr::mutate(w_rank = as.integer(w_rank),
            w_pts = as.integer(w_pts),
            l_rank = as.integer(l_rank),
            l_pts = as.integer(l_pts),
@@ -135,13 +138,13 @@ pm_tennis_fetchAllDatasets <- function(competition = 'WTA'){
 
 pm_tennis_eloify_dataset <- function(my_raw_data){
   mydata <- my_raw_data %>%
-    mutate(sampleSide = rbinom(nrow(my_raw_data),1,0.5))
+    dplyr::mutate(sampleSide = rbinom(nrow(my_raw_data),1,0.5))
 
-  mywinners <- mydata %>% filter(sampleSide == 1)
-  mylosers <- mydata %>% filter(sampleSide == 0)
+  mywinners <- mydata %>% dplyr::filter(sampleSide == 1)
+  mylosers <- mydata %>% dplyr::filter(sampleSide == 0)
 
   mywinners <- mywinners %>%
-    mutate(actualResult = 1)
+    dplyr::mutate(actualResult = 1)
   names(mywinners)[names(mywinners) == 'winner'] <- 'player_name'
   names(mywinners)[names(mywinners) == 'loser'] <- 'opponent_name'
   colnums = grep('^w',x=names(mywinners),ignore.case = TRUE)
@@ -151,7 +154,7 @@ pm_tennis_eloify_dataset <- function(my_raw_data){
 
 
   mylosers <- mylosers %>%
-    mutate(actualResult = 0)
+    dplyr::mutate(actualResult = 0)
   names(mylosers)[names(mylosers) == 'winner'] <- 'opponent_name'
   names(mylosers)[names(mylosers) == 'loser'] <- 'player_name'
   colnums = grep('^l',x=names(mylosers),ignore.case = TRUE)
@@ -160,5 +163,6 @@ pm_tennis_eloify_dataset <- function(my_raw_data){
   names(mylosers)[colnums] = gsub(pattern = 'w',replacement = 'opponent',x=names(mylosers)[colnums],ignore.case = TRUE)
 
   bind_rows(mywinners,
-            mylosers)
+            mylosers) %>%
+    dplyr::arrange(match_date)
 }
