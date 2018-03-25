@@ -21,4 +21,7 @@ Imports: tidyverse,
     ggplot2,
     Hmisc,
     lubridate,
-    tibble
+    tibble,
+    readxl,
+    janitor,
+    purrr

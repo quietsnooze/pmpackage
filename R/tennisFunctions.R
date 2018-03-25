@@ -1,7 +1,7 @@
 devtools::use_package('tidyverse')
 devtools::use_package('readxl')
 devtools::use_package('janitor')
-devtools::use_package('purr')
+devtools::use_package('purrr')
 devtools::use_package('tibble')
 devtools::use_package('stringr')
 
@@ -121,6 +121,7 @@ pm_tennis_fetchDataset <- function(myyear,
 #' @return
 #' @export
 #'
+#' @importFrom magrittr "%>%"
 #' @examples
 pm_tennis_fetchAllDatasets <- function(competition = 'WTA'){
 
@@ -136,6 +137,15 @@ pm_tennis_fetchAllDatasets <- function(competition = 'WTA'){
 
 
 
+#' Convert raw data into an Elo-friendly format
+#'
+#' @param my_raw_data
+#'
+#' @return
+#' @export
+#'
+#' @importFrom magrittr "%>%"
+#' @examples
 pm_tennis_eloify_dataset <- function(my_raw_data){
   mydata <- my_raw_data %>%
     dplyr::mutate(sampleSide = rbinom(nrow(my_raw_data),1,0.5))
