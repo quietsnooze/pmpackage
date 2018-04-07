@@ -139,7 +139,6 @@ pm_eloTidifyDataframe = function(eloDataframe){
 
 
 
-
 #' pm_eloRunTimeSlice
 #'
 #' Compute and update ELO scores for a single time slice. Within the time slice all matches are assumed to be happening in parallel.
