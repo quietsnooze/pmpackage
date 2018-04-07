@@ -24,4 +24,6 @@ Imports: tidyverse,
     tibble,
     readxl,
     janitor,
-    purrr
+    purrr,
+    rlang,
+    patchwork
