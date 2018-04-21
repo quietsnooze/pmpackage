@@ -55,7 +55,8 @@ pm_modelling_compare_player_opponent <- function(df,
   #apply them
   finaldf <- df %>%
     dplyr::mutate(xxx_ratio = !!p_varname / !!o_varname,
-                  xxx_difference = !!p_varname - !!o_varname)
+                  xxx_difference = !!p_varname - !!o_varname,
+                  xxx_ratio_ln = log(xxx_ratio))
 
   names(finaldf) = names(finaldf) %>% stringr::str_replace_all(pattern = 'xxx', replacement = varname)
 
@@ -81,9 +82,11 @@ pm_modelling_tidify_player_opponent_dataframe = function(df,
 
   core_variables = c('actualResult','winNum','match_date',additional_variables)
   core_variables = core_variables[!is.na(core_variables)]
-  all_variables = c(core_variables,additional_variables)
+  all_variables = unique(c(core_variables,additional_variables))
   playerVars = names(df) %>% stringr::str_subset(paste(unlist(c('player',all_variables)),collapse='|'))
   opponentVars = names(df) %>% stringr::str_subset(paste(unlist(c('opponent',all_variables)),collapse='|'))
+  diff_variables = all_variables %>% stringr::str_subset('difference')
+  ratio_variables = all_variables %>% stringr::str_subset('ratio')
 
   players = df %>%
     dplyr::select(c('player_name',playerVars))
@@ -93,7 +96,9 @@ pm_modelling_tidify_player_opponent_dataframe = function(df,
 
   names(opponents) = names(opponents) %>% stringr::str_replace_all(pattern = 'opponent', replacement = 'player')
   opponents <- opponents %>%
-    dplyr::mutate(actualResult = 1 - actualResult)
+    dplyr::mutate(actualResult = 1 - actualResult) %>%
+    purrr::modify_at(diff_variables,function(x) {x = -x}) %>%
+    purrr::modify_at(ratio_variables,function(x) {x = 1/x})
 
   both = players %>%
     dplyr::bind_rows(opponents)
@@ -154,6 +159,42 @@ pm_modelling_lifetime_performance <- function(df,group_variables=NA){
 
   #return it
   finaldf
+
+
+}
+
+
+pm_modelling_lag_variable <- function(df,varname){
+  df <- df %>%
+    mutate(pm_modelling_match_date_as_day = as.Date(match_date) - 1, #-1 since it needs to be the day before the match
+           pm_modelling_match_date_as_day_90d = as.Date(match_date) - 91,
+           pm_modelling_match_date_as_day_180d = as.Date(match_date) - 181,
+           pm_modelling_match_date_as_day_365d = as.Date(match_date) - 361)
+
+  df_tidy <- df %>%
+    pmpackage::pm_modelling_tidify_player_opponent_dataframe(additional_variables = c(varname,
+                                                                                      pm_modelling_match_date_as_day)) %>%
+    dplyr::distinct(player_name,
+                    pm_modelling_match_date_as_day,
+                    .keep_all = TRUE) %>%
+    select(player_name,
+           pm_modelling_match_date_as_day,
+           varname)
+
+  df <- df %>%
+    left_join(df_tidy %>% rename(paste0(varname,'_90d'),varname),
+              by=c('player_name' = 'player_name',
+                   'pm_modelling_match_date_as_day' = 'pm_modelling_match_date_as_day_90d')) %>%
+    left_join(df_tidy %>% rename(paste0(varname,'_180d'),varname),
+              by=c('player_name' = 'player_name',
+                   'pm_modelling_match_date_as_day' = 'pm_modelling_match_date_as_day_180d')) %>%
+    left_join(df_tidy %>% rename(paste0(varname,'_365d'),varname),
+              by=c('player_name' = 'player_name',
+                  'pm_modelling_match_date_as_day' = 'pm_modelling_match_date_as_day_365d')) %>%
+    select(-pm_modelling_match_date_as_day,
+           -pm_modelling_match_date_as_day_90d,
+           -pm_modelling_match_date_as_day_180d,
+           -pm_modelling_match_date_as_day_365d)
 
 
 }
@@ -249,8 +290,19 @@ pm_modelling_plot_variable = function(df,
 pm_modelling_calc_gini <- function(df,
                                    predvar,
                                    truevar){
+
+  #fix when predvar is negatively correlated with true outcome
   gini_df <- df %>%
-    dplyr::mutate(random_var_for_sorting = rnorm(n=nrow(df))) %>% #don't want to accidentally benefit from pre-sorting
+    filter(!is.na(get(predvar)),
+           !is.na(get(truevar)),
+           !is.infinite((get(predvar))),
+           !is.infinite((get(truevar))))
+  if (cor(gini_df[[predvar]],gini_df[[truevar]]) < 0){
+    gini_df[[predvar]] = - gini_df[[predvar]]
+  }
+
+  gini_df <- gini_df %>%
+    dplyr::mutate(random_var_for_sorting = rnorm(n=nrow(gini_df))) %>% #don't want to accidentally benefit from pre-sorting
     dplyr::arrange(random_var_for_sorting) %>%
     dplyr::arrange(-get(predvar)) %>%
     dplyr::mutate(pm_modelling_gini_cumsum_wins = cumsum(get(truevar) == 1),

@@ -13,7 +13,7 @@
 pm_dq_checkColumn = function(df,colname){
   testData = df %>% select_(colname) %>% pull()
 
-  if (class(testData) == 'numeric' | class(testData) == 'Date' | class(testData) == 'difftime'){
+  if (class(testData) == 'numeric' | class(testData) == 'Date' | class(testData) == 'difftime' | class(testData) == 'integer'){
     list('col' = colname,
          'class' = class(testData),
          'num' = length(testData),
