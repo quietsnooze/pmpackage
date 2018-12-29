@@ -16,6 +16,6 @@ a list with two items: a hashmap for ELO scores, a hashmap for number of matches
 Prepare hashmaps for playerScore and playerMatches for seen data (i.e. from a dataframe that has already had pm_eloRunTimeSlice on it).
 }
 \examples{
-pm_eloPrepDatabase(unseenDataPlayers=c('bob','charlie'))
+
 
 }

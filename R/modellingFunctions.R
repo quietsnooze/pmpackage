@@ -1,6 +1,5 @@
-devtools::use_package('rlang')
-devtools::use_package('tidyverse')
-devtools::use_package('patchwork')
+usethis::use_package('rlang')
+usethis::use_package('patchwork')
 
 
 #' Logit of probability pr

@@ -24,7 +24,9 @@ Compute and update ELO scores for multiple time slices. Within each individual t
 tmpres = pm_eloPrepDatabase(unseenDataPlayers=c('bob','charlie'))
 eloDB = tmpres$eloDB
 matchDB = tmpres$matchDB
-mysim = tibble::tribble(~player_name,~opponent_name,~match_date,'bob','charlie',as.Date('2007-01-01'),'bob','david',as.Date('2007-01-02'))
+mysim = tibble::tribble(~player_name,~opponent_name,~match_date,~actualResult,
+'bob','charlie',as.Date('2007-01-01'),1,
+'bob','david',as.Date('2007-01-02'),0)
 tmpres = pm_eloRunTimeSlice(eloDB,matchDB,mysim)
 
 }
