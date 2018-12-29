@@ -1,4 +1,4 @@
-devtools::use_package('ggplot2')
+usethis::use_package('ggplot2')
 
 #' pm_ggplot_theme
 #'

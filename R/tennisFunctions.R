@@ -1,9 +1,9 @@
-devtools::use_package('tidyverse')
-devtools::use_package('readxl')
-devtools::use_package('janitor')
-devtools::use_package('purrr')
-devtools::use_package('tibble')
-devtools::use_package('stringr')
+
+usethis::use_package('readxl')
+usethis::use_package('janitor')
+usethis::use_package('purrr')
+usethis::use_package('tibble')
+usethis::use_package('stringr')
 
 
 
@@ -109,6 +109,23 @@ pm_tennis_fetchDataset <- function(myyear,
            winner = trimws(winner),
            loser = trimws(loser))
 
+  #fix match_date
+  dfMatch$roundChar = substr(dfMatch$round,1,1)
+  dfMatch$roundNum = ifelse(dfMatch$roundChar == 'T',1,
+                         ifelse(dfMatch$roundChar == 'S',2,
+                                ifelse(dfMatch$roundChar == 'Q',4,
+                                       ifelse(dfMatch$roundChar == '4',8,
+                                              ifelse(dfMatch$roundChar == '3',16,
+                                                     ifelse(dfMatch$roundChar == '2',32,
+                                                            ifelse(dfMatch$roundChar == '1',64,
+                                                                   ifelse(dfMatch$roundChar == 'R',128,
+                                                                          256))))))))
+  dfMatch$match_date = dfMatch$match_date + 1000 * 1/dfMatch$roundNum
+  # Now match date are no longer equal provided the roundNum is different... :)
+
+  #Still some duplicates
+  dfMatch <- dplyr::distinct(dfMatch)
+
 
   dfMatch
 }
@@ -128,8 +145,9 @@ pm_tennis_fetchAllDatasets <- function(competition = 'WTA'){
   myyears <- seq(from=2007,to=2018,by=1)
 
   allTheData <- myyears %>%
-    map(~ pm_tennis_fetchDataset(., competition = competition)) %>%
-    reduce(bind_rows)
+    purrr::map(~ pm_tennis_fetchDataset(., competition = competition)) %>%
+    purrr::reduce(bind_rows) %>%
+    dplyr::distinct(winner,loser,match_date,tournament,round,.keep_all=TRUE)
 
   allTheData
 }
