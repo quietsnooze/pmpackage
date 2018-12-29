@@ -4,11 +4,12 @@
 \alias{pm_eloSimulateTournamentInParallel}
 \title{pm_eloSimulateTournamentInParallel}
 \usage{
-pm_eloSimulateTournamentInParallel(ds, runs = 10, eloDBForSim, matchDBForSim,
-  keyCols = c("roundNum", "player_name", "opponent_name", "match_date",
-  "Tournament"), simCols = c("predictions", "simWinner", "winnerName"),
-  maxTimeSecs = 999999999999, tournamentName = "default",
-  resetDatabase = FALSE, forceSingleThreaded = FALSE)
+pm_eloSimulateTournamentInParallel(ds, runs = 10, eloDBForSim,
+  matchDBForSim, keyCols = c("roundNum", "player_name", "opponent_name",
+  "match_date", "Tournament"), simCols = c("predictions", "simWinner",
+  "winnerName"), maxTimeSecs = 999999999999,
+  tournamentName = "default", resetDatabase = FALSE,
+  forceSingleThreaded = FALSE)
 }
 \arguments{
 \item{ds}{A dataframe structured to describe the tournament}
