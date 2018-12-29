@@ -4,7 +4,8 @@
 \alias{pm_modelling_tidify_player_opponent_dataframe}
 \title{Turn a dataframe with player_ and opponent_ data into a tidy dataframe}
 \usage{
-pm_modelling_tidify_player_opponent_dataframe(df, additional_variables = NA)
+pm_modelling_tidify_player_opponent_dataframe(df,
+  additional_variables = NA)
 }
 \arguments{
 \item{df}{}

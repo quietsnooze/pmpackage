@@ -26,6 +26,6 @@ Prepare hashmaps for playerScore and playerMatches for unseen data (i.e. new pla
 If the database does not exist (eloDB=NA) a new database will be generated.
 }
 \examples{
-pm_eloPrepDatabase(unseenDataPlayers=c('bob','charlie'))
+
 
 }

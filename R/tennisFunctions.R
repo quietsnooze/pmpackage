@@ -1,9 +1,9 @@
-devtools::use_package('tidyverse')
-devtools::use_package('readxl')
-devtools::use_package('janitor')
-devtools::use_package('purrr')
-devtools::use_package('tibble')
-devtools::use_package('stringr')
+
+usethis::use_package('readxl')
+usethis::use_package('janitor')
+usethis::use_package('purrr')
+usethis::use_package('tibble')
+usethis::use_package('stringr')
 
 
 

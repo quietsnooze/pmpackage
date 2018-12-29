@@ -1,13 +1,13 @@
-devtools::use_package('tidyverse')
-devtools::use_package('hashmap')
-devtools::use_package('dplyr')
-devtools::use_package('data.table')
-devtools::use_package('doParallel')
-devtools::use_package('foreach')
-devtools::use_package('stringr')
-devtools::use_package('Hmisc')
-devtools::use_package('lubridate')
-devtools::use_package('tibble')
+usethis::use_package('magrittr')
+usethis::use_package('hashmap')
+usethis::use_package('dplyr')
+usethis::use_package('data.table')
+usethis::use_package('doParallel')
+usethis::use_package('foreach')
+usethis::use_package('stringr')
+usethis::use_package('Hmisc')
+usethis::use_package('lubridate')
+usethis::use_package('tibble')
 
 
 
@@ -26,7 +26,7 @@ devtools::use_package('tibble')
 #' @return a list with two items: a hashmap for ELO scores, a hashmap for number of matches played
 #'
 #' @examples
-#' pm_eloPrepDatabase(unseenDataPlayers=c('bob','charlie'))
+#'
 #'
 #' @export
 #' @importFrom magrittr "%>%"
@@ -66,7 +66,7 @@ pm_eloPrepDatabase = function(eloDB=NA,
 #' @return a list with two items: a hashmap for ELO scores, a hashmap for number of matches played
 #'
 #' @examples
-#' pm_eloPrepDatabase(unseenDataPlayers=c('bob','charlie'))
+#'
 #'
 #' @export
 #' @importFrom magrittr "%>%"
@@ -154,7 +154,8 @@ pm_eloTidifyDataframe = function(eloDataframe){
 #' tmpres = pm_eloPrepDatabase(unseenDataPlayers=c('bob','charlie'))
 #' eloDB = tmpres$eloDB
 #' matchDB = tmpres$matchDB
-#' mysim = tibble::tribble(~player_name,~opponent_name,'bob','charlie')
+#' mysim = tibble::tribble(~player_name,~opponent_name,~match_date,~actualResult,
+#' 'bob','charlie',as.Date('2007-01-01'),1)
 #' tmpres = pm_eloRunTimeSlice(eloDB,matchDB,mysim)
 #'
 #' @export
@@ -244,7 +245,9 @@ pm_eloRunTimeSlice <- function(eloDB,
 #' tmpres = pm_eloPrepDatabase(unseenDataPlayers=c('bob','charlie'))
 #' eloDB = tmpres$eloDB
 #' matchDB = tmpres$matchDB
-#' mysim = tibble::tribble(~player_name,~opponent_name,~match_date,'bob','charlie',as.Date('2007-01-01'),'bob','david',as.Date('2007-01-02'))
+#' mysim = tibble::tribble(~player_name,~opponent_name,~match_date,~actualResult,
+#' 'bob','charlie',as.Date('2007-01-01'),1,
+#' 'bob','david',as.Date('2007-01-02'),0)
 #' tmpres = pm_eloRunTimeSlice(eloDB,matchDB,mysim)
 #'
 #' @export

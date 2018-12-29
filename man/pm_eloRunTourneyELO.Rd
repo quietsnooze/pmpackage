@@ -4,9 +4,10 @@
 \alias{pm_eloRunTourneyELO}
 \title{pm_eloRunTourneyELO}
 \usage{
-pm_eloRunTourneyELO(tournamentSetup, keyCols = c("roundNum", "player_name",
-  "opponent_name", "match_date", "Tournament"), simCols = c("predictions",
-  "simWinner", "winnerName"), roundeloDB, roundmatchDB)
+pm_eloRunTourneyELO(tournamentSetup, keyCols = c("roundNum",
+  "player_name", "opponent_name", "match_date", "Tournament"),
+  simCols = c("predictions", "simWinner", "winnerName"), roundeloDB,
+  roundmatchDB)
 }
 \arguments{
 \item{tournamentSetup}{A dataframe strucutred to describe the tournament}
