@@ -27,8 +27,7 @@ tmpres = pm_eloPrepDatabase(unseenDataPlayers=c('bob','charlie'))
 eloDB = tmpres$eloDB
 matchDB = tmpres$matchDB
 mysim = tibble::tribble(~player_name,~opponent_name,~match_date,~actualResult,
-'bob','charlie',as.Date('2007-01-01'),1,
-'bob','david',as.Date('2007-01-02'),0)
+'bob','charlie',as.Date('2007-01-01'),1)
 tmpres = pm_eloRunTimeSlice(eloDB,matchDB,mysim)
 
 }

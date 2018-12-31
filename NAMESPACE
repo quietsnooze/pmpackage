@@ -19,8 +19,6 @@ export(pm_ggplot_theme)
 export(pm_gh_config)
 export(pm_gh_pull_request)
 export(pm_gh_push_request)
-<<<<<<< HEAD
-=======
 export(pm_modelling_calc_gini)
 export(pm_modelling_compare_player_opponent)
 export(pm_modelling_lifetime_performance)
@@ -29,7 +27,6 @@ export(pm_modelling_tidify_player_opponent_dataframe)
 export(pm_tennis_eloify_dataset)
 export(pm_tennis_fetchAllDatasets)
 export(pm_tennis_fetchDataset)
->>>>>>> 43295ca39b399d775ed0b8cf33aceddf6df56297
 import(data.table)
 import(doParallel)
 import(dplyr)
