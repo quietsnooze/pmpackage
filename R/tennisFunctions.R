@@ -114,23 +114,43 @@ pm_tennis_fetchDataset <- function(myyear,
   # fpath is the full path to the extracted file
   fpath = file.path(td, fname)
 
-  dfMatch <- readxl::read_excel(fpath, guess_max = Inf) %>%
-    janitor::clean_names() %>%
-    tibble::as.tibble() %>%
-    dplyr::select(-one_of(tolower(extraVars))) %>%
-    dplyr::rename(match_date = date,
-           series = tier,
-           match_location = location) %>%
-    dplyr::filter(!is.na(match_date)) %>%
-    dplyr::mutate(w_rank = as.integer(w_rank),
-           w_pts = as.integer(w_pts),
-           l_rank = as.integer(l_rank),
-           l_pts = as.integer(l_pts),
-           wsets = as.integer(wsets),
-           lsets = as.integer(lsets),
-           tournament = stringr::str_replace_all(tournament,"[^a-zA-Z\\s]", " "),
-           winner = trimws(winner),
-           loser = trimws(loser))
+  if (competition == 'WTA'){
+    dfMatch <- readxl::read_excel(fpath, guess_max = Inf) %>%
+      janitor::clean_names() %>%
+      tibble::as.tibble() %>%
+      dplyr::select(-one_of(tolower(extraVars))) %>%
+      dplyr::rename(match_date = date,
+                    series = tier,
+                    match_location = location) %>%
+      dplyr::filter(!is.na(match_date)) %>%
+      dplyr::mutate(w_rank = as.integer(w_rank),
+                    w_pts = as.integer(w_pts),
+                    l_rank = as.integer(l_rank),
+                    l_pts = as.integer(l_pts),
+                    wsets = as.integer(wsets),
+                    lsets = as.integer(lsets),
+                    tournament = stringr::str_replace_all(tournament,"[^a-zA-Z\\s]", " "),
+                    winner = trimws(winner),
+                    loser = trimws(loser))
+  } else if (competition == 'ATP'){
+    dfMatch <- readxl::read_excel(fpath, guess_max = Inf) %>%
+      janitor::clean_names() %>%
+      tibble::as.tibble() %>%
+      dplyr::select(-one_of(tolower(extraVars))) %>%
+      dplyr::rename(match_date = date,
+                    match_location = location) %>%
+      dplyr::filter(!is.na(match_date)) %>%
+      dplyr::mutate(w_rank = as.integer(w_rank),
+                    w_pts = as.integer(w_pts),
+                    l_rank = as.integer(l_rank),
+                    l_pts = as.integer(l_pts),
+                    wsets = as.integer(wsets),
+                    lsets = as.integer(lsets),
+                    tournament = stringr::str_replace_all(tournament,"[^a-zA-Z\\s]", " "),
+                    winner = trimws(winner),
+                    loser = trimws(loser))
+
+  }
 
   #fix match_date
   dfMatch$roundChar = substr(dfMatch$round,1,1)
