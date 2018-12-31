@@ -534,9 +534,9 @@ pm_eloRunTourneyELO = function(   tournamentSetup,
   #num players making it forward to next round
   numPlayersProgressing = length(x$player_name)
 
-  message('number of winners = ',numPlayersProgressing)
-  print(x[,c(simCols,keyCols)])
-  message('number of winners and table printed')
+  #message('number of winners = ',numPlayersProgressing)
+  #print(x[,c(simCols,keyCols)])
+  #message('number of winners and table printed')
 
   #check if done
   if (numPlayersProgressing==1){
