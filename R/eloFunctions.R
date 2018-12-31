@@ -251,7 +251,7 @@ pm_eloRunTimeSlice <- function(eloDB,
 #' mysim = tibble::tribble(~player_name,~opponent_name,~match_date,~actualResult,
 #' 'bob','charlie',as.Date('2007-01-01'),1,
 #' 'bob','david',as.Date('2007-01-02'),0)
-#' tmpres = pm_eloRunTimeSlice(eloDB,matchDB,mysim)
+#' tmpres = pm_eloRunMultipleTimeSlices(eloDB,matchDB,mysim)
 #'
 #' @export
 pm_eloRunMultipleTimeSlices <- function(eloDB,
