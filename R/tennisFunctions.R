@@ -37,7 +37,7 @@ pm_tennis_fetchDataset <- function(myyear,
       'y2018' = 'http://www.tennis-data.co.uk/2018w/2018zip'
     )
   } else if (competition == 'ATP'){
-    availableFile <- list(
+    availableFiles <- list(
       'y2001' = 'http://www.tennis-data.co.uk/2001/2001.zip',
       'y2002' = 'http://www.tennis-data.co.uk/2002/2002.zip',
       'y2003' = 'http://www.tennis-data.co.uk/2003/2003.zip',
