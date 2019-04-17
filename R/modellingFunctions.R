@@ -305,7 +305,7 @@ pm_modelling_plot_variable = function(df,
     iv = df[[independent_var]]
   } else{
     iv = eval(substitute(independent_var),df,parent.frame())
-    print(quote(iv))
+    #print(quote(iv))
     independent_var = deparse(substitute(independent_var))
   }
 
