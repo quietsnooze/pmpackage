@@ -14,7 +14,7 @@ pm_dq_checkColumn = function(df,colname){
   testData = df %>% select_(colname) %>% pull()
 
   ctd <- class(testData[1])[1]
-  print(ctd)
+  #print(ctd)
 
   if (ctd %in% c('numeric',
                                 'Date',
