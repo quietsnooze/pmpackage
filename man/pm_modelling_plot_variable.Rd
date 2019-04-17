@@ -4,7 +4,8 @@
 \alias{pm_modelling_plot_variable}
 \title{Plot the relationship between a variable and results}
 \usage{
-pm_modelling_plot_variable(df, var_name)
+pm_modelling_plot_variable(df, dependent_var, independent_var,
+  sample_size = Inf)
 }
 \arguments{
 \item{var_name}{}

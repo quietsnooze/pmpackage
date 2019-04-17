@@ -10,7 +10,8 @@ License: What license is it under?
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.1.1
-Imports: tidyverse,
+Imports: 
+    tidyverse,
     hashmap,
     magrittr,
     dplyr,
@@ -26,4 +27,5 @@ Imports: tidyverse,
     janitor,
     purrr,
     rlang,
-    patchwork
+    patchwork,
+    rpart

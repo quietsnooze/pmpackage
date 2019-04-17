@@ -1,5 +1,6 @@
 usethis::use_package('rlang')
 usethis::use_package('patchwork')
+usethis::use_package('rpart')
 
 
 #' Logit of probability pr
@@ -198,7 +199,92 @@ pm_modelling_lag_variable <- function(df,varname){
 
 }
 
+#' Calculate the information values for a variable in a dataframe
+#'
+#' @param df
+#' @param dependent_var
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' @importFrom magrittr "%>%"
+pm_modelling_iv <- function(dv,iv){
+  iv_name <- deparse(substitute(iv))
+  dv_name <- deparse(substitute(dv))
 
+  tdf <- tibble(iv = iv,
+                dv = dv)
+
+  classvar <- tdf$iv[1]
+
+  if(!(is.numeric(classvar))){
+    #print('found factor')
+    tdf$grouped_var <- tdf$iv
+  } else if(length(unique(tdf$iv)) < 10){
+    #print('found non-factor with few unique vals')
+    tdf$grouped_var <- tdf$iv
+  } else {
+    #print('found non-factor')
+    myq <- quantile(iv,probs=seq(from=0,to=1,length.out=min(10,unique(length(iv)))),na.rm=TRUE)
+    tdf$grouped_var <- addNA(cut(tdf$iv,breaks = myq))
+  }
+
+  tdf <- tdf %>%
+    dplyr::mutate(tot_event = sum(dv==1,na.rm=TRUE),
+                  tot_nonevent = n() - tot_event) %>%
+    dplyr::group_by(grouped_var) %>%
+    dplyr::summarise(num = n(),
+                     event = sum(dv,na.rm=TRUE),
+                     nonevent = n() - event,
+                     tot_event = max(tot_event),
+                     tot_nonevent = max(tot_nonevent))%>%
+    dplyr::ungroup() %>%
+    dplyr::mutate(pct_event = event / tot_event,
+                  pct_nonevent= nonevent / tot_nonevent,
+                  woe = log(pct_event/pct_nonevent),
+                  info_val = (pct_event - pct_nonevent) * woe)
+
+  list(independent_varname = iv_name,
+       dependent_varname = dv_name,
+       infoval_df = tdf,
+       info_val = sum(tdf$info_val))
+}
+
+
+#' Calculate the information values for an entire dataframe
+#'
+#' @param df
+#' @param dependent_var
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' @importFrom magrittr "%>%"
+pm_modelling_report_all_info_vals <- function(df,
+                                              dependent_var){
+
+
+  if(class(substitute(dependent_var)) == 'name'){
+    dependent_var <- deparse(substitute(dependent_var))
+  }
+  dv <- dependent_var
+  #print(paste(dv,class(dv)))
+
+  iv_vector <- rep(NA,length(names(df)))
+  for (n in 1:length(names(df))){
+    vname = names(df)[n]
+    #print(paste('iv = ',vname))
+    #print(paste('dv = ',dv))
+    iv_vector[n] <- pm_modelling_iv(iv = df[[vname]],
+                                    dv =  df[[dv]])$info_val
+  }
+  dplyr::tibble(colname = names(df),
+                info_val = iv_vector) %>%
+    dplyr::filter(!is.infinite(info_val)) %>%
+    dplyr::arrange(-info_val)
+}
 
 #' Plot the relationship between a variable and results
 #'
@@ -211,66 +297,121 @@ pm_modelling_lag_variable <- function(df,varname){
 #' @examples
 #' @importFrom magrittr "%>%"
 pm_modelling_plot_variable = function(df,
-                                      var_name){
-  df = df %>%
-    dplyr::sample_n(size = min(nrow(df),2000))
+                                      dependent_var,
+                                      independent_var,
+                                      sample_size=Inf){
 
-  xlims = quantile(df %>% select_(var_name) %>% pull(),c(0.1,0.9),na.rm = TRUE)
+  if(class(substitute(independent_var))=='character'){
+    iv = df[[independent_var]]
+  } else{
+    iv = eval(substitute(independent_var),df,parent.frame())
+    print(quote(iv))
+    independent_var = deparse(substitute(independent_var))
+  }
+
+  if(class(substitute(dependent_var)) == 'character'){
+    dv = as.numeric(df[[dependent_var]])
+  } else{
+    dve = eval(substitute(dependent_var),df,parent.frame())
+    if (class(dve) == 'character'){
+      dv = as.numeric(df[[dve]])
+    } else{
+      dv = as.numeric(dve)
+    }
+    dependent_var = deparse(substitute(dependent_var))
+  }
+
+  # allow user to specify a max number rows if plotting 100s of vars (speedy!)
+  df = tibble(dv = dv,
+              iv = iv) %>%
+    dplyr::sample_n(size = min(nrow(df),sample_size))
+
+  if(is.numeric(df %>% select(iv) %>% pull())){
+    xlims = quantile(df %>% select(iv) %>% pull(),c(0.1,0.9),na.rm = TRUE)
+  } else{
+    xlims = c(NA,NA)
+  }
+
 
   ggp1 <- ggplot2::ggplot(data=df,
-                          ggplot2::aes(x=get(var_name),
-                              y=actualResult)) +
+                          ggplot2::aes(x=iv),
+                          y=dv) +
     ggplot2::geom_point(alpha=0.1) +
     ggplot2::geom_smooth() +
     ggplot2::geom_smooth(colour='red',method='lm') +
     pmpackage::pm_ggplot_theme() +
-    ggplot2::xlab(var_name) +
+    ggplot2::xlab(independent_var) +
     ggplot2::ylim(0,1)
 
 
-  ggp2 <- ggplot2::ggplot(data=df,
-                          ggplot2::aes(x=get(var_name))) +
-    ggplot2::geom_density() +
-    pmpackage::pm_ggplot_theme() +
-    ggplot2::xlab(var_name)
+  if(is.numeric(df %>% select(iv) %>% pull())){
+    ggp2 <- ggplot2::ggplot(data=df,
+                            ggplot2::aes(x=iv)) +
+      ggplot2::geom_density() +
+      pmpackage::pm_ggplot_theme() +
+      ggplot2::xlab(independent_var)
+  } else{
+    ggp2 <- ggplot2::ggplot(data=df,
+                            ggplot2::aes(x=iv)) +
+      ggplot2::geom_histogram(stat='count') +
+      pmpackage::pm_ggplot_theme() +
+      ggplot2::xlab(independent_var)
+  }
 
 
-  ggp3 <- ggplot2::ggplot(data=df,
-                          ggplot2::aes(x=get(var_name),
-                              y=actualResult)) +
-    ggplot2::geom_point(alpha=0.1) +
-    ggplot2::geom_smooth() +
-    ggplot2::geom_smooth(colour='red',method='lm') +
-    pmpackage::pm_ggplot_theme() +
-    ggplot2::xlim(xlims[1],xlims[2]) +
-    ggplot2::xlab(var_name) +
-    ggplot2::ylim(0,1)
+  if(is.numeric(df %>% select(iv) %>% pull())){
+    ggp3 <- ggplot2::ggplot(data=df,
+                            ggplot2::aes(x=iv,
+                                         y=dv)) +
+      ggplot2::geom_point(alpha=0.1) +
+      ggplot2::geom_smooth() +
+      ggplot2::geom_smooth(colour='red',method='lm') +
+      pmpackage::pm_ggplot_theme() +
+      ggplot2::xlab(independent_var) +
+      ggplot2::ylim(0,1) +
+      ggplot2::xlim(xlims)
+  } else{
+    ggp3 <- df %>%
+      dplyr::group_by(iv) %>%
+      dplyr::summarise(dv = mean(dv)) %>%
+      dplyr::ungroup() %>%
+      ggplot2::ggplot(ggplot2::aes(x=iv,
+                                   y=dv)) +
+      ggplot2::geom_bar(stat='identity') +
+      pmpackage::pm_ggplot_theme() +
+      ggplot2::xlab(independent_var)  +
+      ggplot2::ylab('prob')
+  }
 
-
-  mygini_list <- pm_modelling_calc_gini(df,
-                                        var_name,
-                                        'actualResult')
+  mygini_list <- pm_modelling_calc_gini(df, iv, dv)
 
   ggp_gini<- ggplot2::ggplot(data = mygini_list$gini_df) +
     ggplot2::geom_line(ggplot2::aes(x=pm_modelling_gini_pct_losses, y= pm_modelling_gini_pct_wins), colour='tomato1') +
     ggplot2::geom_abline(slope=1,intercept = 0) +
-              pmpackage::pm_ggplot_theme() +
+    pmpackage::pm_ggplot_theme() +
     ggplot2::ylab('Percentage of winners found') +
     ggplot2::xlab('Percentage of losers found') +
-    ggplot2::ggtitle(paste0('Gini = ',round(mygini_list$gini*100,1),'%'))
+    ggplot2::ggtitle(paste0('Gini = ',round(mygini_list$gini*100,1),'%')) +
+    ggplot2::xlim(0,1) +
+    ggplot2::ylim(0,1)
 
 
+  myinfo <- pm_modelling_iv(dv = dv, iv= iv)
+  name_info <- paste0(independent_var,'; IV = ',round(myinfo$info_val,2))
+
+  #grid plot
   grid::grid.newpage()
   grid::pushViewport(grid::viewport(layout = grid::grid.layout(2, 2)))
 
-  grid::grid.text(var_name, vp = grid::viewport(layout.pos.row = 1, layout.pos.col = 1))
+  gridtext <-
+    grid::grid.text(name_info, vp = grid::viewport(layout.pos.row = 1, layout.pos.col = 1))
 
   print(ggp2, vp = grid::viewport(layout.pos.row = 1,
                                   layout.pos.col = 2))
   print(ggp3, vp = grid::viewport(layout.pos.row = 2,
                                   layout.pos.col = 2))
   print(ggp_gini, vp = grid::viewport(layout.pos.row = 2,
-                                  layout.pos.col = 1))
+                                      layout.pos.col = 1))
 }
 
 
@@ -290,28 +431,157 @@ pm_modelling_calc_gini <- function(df,
                                    predvar,
                                    truevar){
 
+  if(class(substitute(predvar)) == 'character'){
+    pv = as.numeric(df[[predvar]])
+  } else{
+    pve = eval(substitute(predvar),df,parent.frame())
+    if (class(pve)=='character'){ #at this point we've been called with a variable name that contains a string that is a colname!
+      pv = as.numeric(df[[pve]])
+    } else{ #here we've been called by a colname directly
+      pv = as.numeric(pve)
+    }
+  }
+
+
+  if(class(substitute(truevar)) == 'character'){
+    tv = as.numeric(df[[truevar]])
+  } else{
+    tve = eval(substitute(truevar),df,parent.frame())
+    if (class(tve) == 'character'){
+      tv = as.numeric(df[[tve]])
+    } else{
+      tv = as.numeric(tve)
+    }
+  }
+
+
   #fix when predvar is negatively correlated with true outcome
-  gini_df <- df %>%
-    filter(!is.na(get(predvar)),
-           !is.na(get(truevar)),
-           !is.infinite((get(predvar))),
-           !is.infinite((get(truevar))))
-  if (cor(gini_df[[predvar]],gini_df[[truevar]]) < 0){
-    gini_df[[predvar]] = - gini_df[[predvar]]
+  gini_df <- tibble(predvar = pv,
+                    truevar = tv) %>%
+    filter(!is.na(predvar),
+           !is.na(truevar),
+           !is.infinite(predvar),
+           !is.infinite(truevar))
+  print(gini_df)
+  if (cor(gini_df$predvar,gini_df$truevar) < 0){
+    gini_df$predvar = - gini_df$predvar
   }
 
   gini_df <- gini_df %>%
-    dplyr::mutate(random_var_for_sorting = rnorm(n=nrow(gini_df))) %>% #don't want to accidentally benefit from pre-sorting
-    dplyr::arrange(random_var_for_sorting) %>%
-    dplyr::arrange(-get(predvar)) %>%
-    dplyr::mutate(pm_modelling_gini_cumsum_wins = cumsum(get(truevar) == 1),
-                  pm_modelling_gini_cumsum_losses = cumsum(get(truevar) == 0),
-                  pm_modelling_gini_pct_wins = pm_modelling_gini_cumsum_wins / sum(get(truevar) == 1),
-                  pm_modelling_gini_pct_losses = pm_modelling_gini_cumsum_losses / sum(get(truevar) == 0),
-                  pm_modelling_gini_auc = (pm_modelling_gini_pct_wins) * (pm_modelling_gini_pct_losses - dplyr::lag(pm_modelling_gini_pct_losses,default = 0)))
+    dplyr::group_by(predvar) %>%
+    dplyr::summarise(truevar=sum(truevar,na.rm = TRUE),
+                     inv_truevar = n() - truevar) %>%
+    dplyr::ungroup() %>%
+    dplyr::arrange(-predvar) %>%
+    dplyr::mutate(pm_modelling_gini_cumsum_wins = cumsum(truevar),
+                  pm_modelling_gini_cumsum_losses = cumsum(inv_truevar),
+                  pm_modelling_gini_pct_wins = pm_modelling_gini_cumsum_wins / sum(truevar),
+                  pm_modelling_gini_pct_losses = pm_modelling_gini_cumsum_losses / sum(inv_truevar),
+                  pm_modelling_gini_auc = (dplyr::lag(pm_modelling_gini_pct_wins,default=0) + 0.5*(pm_modelling_gini_pct_wins - dplyr::lag(pm_modelling_gini_pct_wins,default=0))) * (pm_modelling_gini_pct_losses - dplyr::lag(pm_modelling_gini_pct_losses,default = 0))) %>%
+    dplyr::bind_rows(tibble(predvar=NA,
+                            truevar=NA,
+                            pm_modelling_gini_cumsum_wins=0,
+                            pm_modelling_gini_cumsum_losses=0,
+                            pm_modelling_gini_pct_wins=0,
+                            pm_modelling_gini_pct_losses=0,
+                            pm_modelling_gini_auc=0))
 
   list('gini_df' = gini_df,
        'auc' = sum(gini_df$pm_modelling_gini_auc),
        'gini' = 1 - 2*(1-sum(gini_df$pm_modelling_gini_auc)))
 }
+
+
+
+#' pm_modelling_autoclass_var
+#'
+#' @param dependent_var
+#' @param independent_var
+#' @param mycp
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' @importFrom magrittr "%>%"
+pm_modelling_autoclass_var <- function(dependent_var,
+                          independent_var,
+                          mycp = 0.005){
+
+  tmp_tbl <- tibble(dv = dependent_var,
+                    iv = independent_var) %>%
+    mutate(rv = runif(n = length(dependent_var))) %>%
+    arrange(rv) %>%
+    select(-rv) %>%
+    filter(!is.na(iv))
+
+  my_decision_tree <- rpart::rpart(dv ~ iv, data=tmp_tbl, method='anova',cp=mycp)
+
+  my_splits <- sort(c(-Inf,my_decision_tree$splits[,'index'],Inf))
+
+  tmp_tbl$autoclassed <- cut(x = tmp_tbl$iv,
+                             breaks = my_splits)
+
+  autoclassed <- cut(x = independent_var,
+                     breaks = my_splits)
+
+  list(autoclassed_var = autoclassed,
+       splits = my_splits,
+       iv = my_decision_tree$variable.importance)
+}
+
+
+
+
+#' pm_modelling_full_autoclass_var
+#'
+#' @param df
+#' @param dependent_var
+#' @param independent_var
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' @importFrom magrittr "%>%"
+pm_modelling_full_autoclass_var <- function(df,
+                                            dependent_var,
+                                            independent_var){
+
+  if(class(substitute(independent_var)) == 'name'){
+    iv = deparse(substitute(independent_var))
+  } else {
+    iv = independent_var
+  }
+
+  if(class(substitute(dependent_var)) == 'name'){
+    dv = deparse(substitute(dependent_var))
+  } else {
+    dv = dependent_var
+  }
+
+  newname = paste0(iv,'_autoclass')
+
+  df[[newname]] <- addNA(cut(df[[iv]],
+                             breaks = pm_modelling_autoclass_var(df[[dv]],
+                                                                df[[iv]])$splits))
+
+  newnamewoe = paste0(newname,'_woe')
+  tdf <- pm_modelling_iv(iv=df[[newname]],
+                          dv=df[[dv]])$infoval_df %>%
+    dplyr::select(grouped_var,
+                  woe)
+  names(tdf) = c(newname,
+                 newnamewoe)
+  df <- df %>%
+    dplyr::left_join(tdf)
+
+  df
+}
+
+
+
+
+
+
 
