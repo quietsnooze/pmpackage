@@ -304,7 +304,14 @@ pm_modelling_plot_variable = function(df,
   if(class(substitute(independent_var))=='character'){
     iv = df[[independent_var]]
   } else{
-    iv = eval(substitute(independent_var),df,parent.frame())
+    ive = eval(substitute(independent_var),df,parent.frame())
+    if (class(ive) == 'character'){
+      #iv = as.numeric(df[[ive]])
+      iv = df[[ive]]
+    } else{
+      #iv = as.numeric(ive)
+      iv = ive
+    }
     #print(quote(iv))
     independent_var = deparse(substitute(independent_var))
   }
@@ -345,12 +352,14 @@ pm_modelling_plot_variable = function(df,
 
 
   if(is.numeric(df %>% select(iv) %>% pull())){
+    #print('plot function found non-factor')
     ggp2 <- ggplot2::ggplot(data=df,
                             ggplot2::aes(x=iv)) +
       ggplot2::geom_density() +
       pmpackage::pm_ggplot_theme() +
       ggplot2::xlab(independent_var)
   } else{
+    #print('plot function found factor')
     ggp2 <- ggplot2::ggplot(data=df,
                             ggplot2::aes(x=iv)) +
       ggplot2::geom_histogram(stat='count') +
@@ -462,7 +471,7 @@ pm_modelling_calc_gini <- function(df,
            !is.na(truevar),
            !is.infinite(predvar),
            !is.infinite(truevar))
-  print(gini_df)
+  #print(gini_df)
   if (cor(gini_df$predvar,gini_df$truevar) < 0){
     gini_df$predvar = - gini_df$predvar
   }
@@ -579,6 +588,103 @@ pm_modelling_full_autoclass_var <- function(df,
   df
 }
 
+
+
+
+
+#' pm_modelling_build_scard_from_model
+#'
+#' @param mymodel
+#' @param mypdo
+#' @param myone2one
+#' @param invert
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' @importFrom magrittr "%>%"
+pm_modelling_build_scard_from_model <- function ( mymodel,
+                                                    mypdo=20,
+                                                    myone2one=500,
+                                                    invert = FALSE){ #invert needed if want classic credit risk scorecard where more points = lower risk
+
+  baseline_level <- (mymodel$coefficients['(Intercept)'] * 20 / log(2) ) / (length(mymodel$contrasts))
+
+  example_scard <- mymodel %>%
+    broom::tidy() %>%
+    dplyr::filter(!(term == '(Intercept)')) %>%
+    dplyr::mutate(pdo=20,
+           one2one =500,
+           num_predictors = length(mymodel$contrasts),
+           score = estimate * pdo / log(2) ,
+           value = str_extract(term,'(\\(|NA).*$'),
+           term = str_replace(term,'(\\(|NA).*$',''))
+
+  example_scard <- example_scard %>%
+    dplyr::right_join(mymodel$data[,unique(example_scard$term)] %>%
+                 distinct() %>%
+                 crossing() %>%
+                 gather(term,value) %>%
+                 distinct() %>%
+                 mutate(value=ifelse(is.na(value),'NA',value))) %>%
+    dplyr::mutate(blevel = baseline_level,
+           score=ifelse(is.na(score),0,score),
+           value=ifelse(is.na(value),'NA',value),
+           score = ifelse(is.na(blevel),score,score + blevel),
+           score = score + 500/(length(mymodel$contrasts)))  %>%
+    dplyr::select(term,
+           value,
+           score)
+
+
+  example_scard
+}
+
+
+#' pm_modelling_score_dataframe
+#'
+#' @param df
+#' @param primary_key
+#' @param scorecard
+#' @param myone2one
+#' @param mypdo
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' @importFrom magrittr "%>%"
+pm_modelling_score_dataframe <- function(df,
+                                          scorecard,
+                                          myone2one=500,
+                                          mypdo=20,
+                                         invert=FALSE){
+
+  df <- df %>%
+    dplyr::mutate(pm_modelling_primary_key = seq(1:nrow(df)))
+
+
+  t1 <- df %>%
+    tidyr::gather(key=term,
+           value=value,
+           -pm_modelling_primary_key) %>%
+    dplyr::mutate(value = ifelse(is.na(value),'NA',value)) %>%
+    dplyr::inner_join(scorecard) %>%
+    dplyr::group_by(pm_modelling_primary_key) %>%
+    dplyr::summarise(score=sum(score,na.rm = TRUE)) %>%
+    dplyr::ungroup() %>%
+    dplyr::mutate(one2one = myone2one,
+           pdo = mypdo,
+           scorecard_prediction = 2^((score - one2one) /pdo)/(2^((score - one2one) /pdo)+1)) %>%
+    dplyr::select(-one2one,
+           -pdo)
+
+
+  df %>%
+    dplyr::left_join(t1) %>%
+    dplyr::select(-pm_modelling_primary_key)
+}
 
 
 
