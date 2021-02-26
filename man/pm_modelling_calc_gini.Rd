@@ -9,6 +9,9 @@ pm_modelling_calc_gini(df, predvar, truevar)
 \arguments{
 \item{truevar}{}
 }
+\value{
+
+}
 \description{
 pm_modelling_calc_gini
 }

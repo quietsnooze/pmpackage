@@ -4,10 +4,13 @@
 \alias{pm_eloRunTourneyELO}
 \title{pm_eloRunTourneyELO}
 \usage{
-pm_eloRunTourneyELO(tournamentSetup, keyCols = c("roundNum",
-  "player_name", "opponent_name", "match_date", "Tournament"),
-  simCols = c("predictions", "simWinner", "winnerName"), roundeloDB,
-  roundmatchDB)
+pm_eloRunTourneyELO(
+  tournamentSetup,
+  keyCols = c("roundNum", "player_name", "opponent_name", "match_date", "Tournament"),
+  simCols = c("predictions", "simWinner", "winnerName"),
+  roundeloDB,
+  roundmatchDB
+)
 }
 \arguments{
 \item{tournamentSetup}{A dataframe strucutred to describe the tournament}
@@ -16,9 +19,9 @@ pm_eloRunTourneyELO(tournamentSetup, keyCols = c("roundNum",
 
 \item{simCols}{Key columsn for debugging results (DO NOT CHANGE FOR NOW)}
 
-\item{eloDB}{a hashmap of player ELO scores, or NA to create a new one}
+\item{eloDB}{a dictionary of player ELO scores, or NA to create a new one}
 
-\item{matchDB}{a hashmap of matches a player has played, or NA}
+\item{matchDB}{a dictionary of matches a player has played, or NA}
 }
 \value{
 A dataframe with winners (simWinner, winnerName) for each match in the Tournament

@@ -4,13 +4,21 @@
 \alias{pm_eloRunTimeSlice}
 \title{pm_eloRunTimeSlice}
 \usage{
-pm_eloRunTimeSlice(eloDB, matchDB, simDF, simulateResults = FALSE,
-  tennisElo = TRUE, Cfactor = 250, Coffset = 5, Cshape = 0.4)
+pm_eloRunTimeSlice(
+  eloDB,
+  matchDB,
+  simDF,
+  simulateResults = FALSE,
+  tennisElo = TRUE,
+  Cfactor = 250,
+  Coffset = 5,
+  Cshape = 0.4
+)
 }
 \arguments{
-\item{eloDB}{a hashmap of player ELO scores}
+\item{eloDB}{a dictionary of player ELO scores}
 
-\item{matchDB}{a hashmap of matches a player has played}
+\item{matchDB}{a dictionary of matches a player has played}
 
 \item{simDF}{a dataframe of matches to process. Requires at least 'player_name', 'opponent_name' and 'actualResult' columns}
 
@@ -23,7 +31,7 @@ a list with three items: the updated eloDB, the updated matchDB and the input si
 Compute and update ELO scores for a single time slice. Within the time slice all matches are assumed to be happening in parallel.
 }
 \examples{
-tmpres = pm_eloPrepDatabase(unseenDataPlayers=c('bob','charlie'))
+tmpres = pm_eloPrepDatabase(unseenDataPlayers=c('bob','charlie','david'))
 eloDB = tmpres$eloDB
 matchDB = tmpres$matchDB
 mysim = tibble::tribble(~player_name,~opponent_name,~match_date,~actualResult,

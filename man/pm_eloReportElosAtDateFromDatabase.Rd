@@ -4,8 +4,11 @@
 \alias{pm_eloReportElosAtDateFromDatabase}
 \title{pm_eloReportElosAtDateFromDatabase}
 \usage{
-pm_eloReportElosAtDateFromDatabase(eloDF, snapshotDate,
-  numMonthsToBeIneligible = 3)
+pm_eloReportElosAtDateFromDatabase(
+  eloDF,
+  snapshotDate,
+  numMonthsToBeIneligible = 3
+)
 }
 \arguments{
 \item{eloDF}{A dataframe containing elo_x data}
@@ -18,6 +21,6 @@ pm_eloReportElosAtDateFromDatabase(eloDF, snapshotDate,
 A dataframe with player_name and latest ELO rating at snapshotDate
 }
 \description{
-Prepare hashmaps for playerScore and playerMatches for unseen data (i.e. new players).
+Prepare dictionarys for playerScore and playerMatches for unseen data (i.e. new players).
 If the database does not exist (eloDB=NA) a new database will be generated.
 }

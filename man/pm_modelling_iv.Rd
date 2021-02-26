@@ -9,6 +9,9 @@ pm_modelling_iv(dv, iv)
 \arguments{
 \item{dependent_var}{}
 }
+\value{
+
+}
 \description{
 Calculate the information values for a variable in a dataframe
 }

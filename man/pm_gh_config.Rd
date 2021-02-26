@@ -11,6 +11,9 @@ pm_gh_config(github_username, github_email)
 
 \item{github_email}{Your github email address}
 }
+\value{
+
+}
 \description{
 pm_gh_config - configure github with username and email
 }

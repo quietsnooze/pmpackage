@@ -6,6 +6,9 @@
 \usage{
 pm_gh_push_request()
 }
+\value{
+
+}
 \description{
 Push your (previously committed) github changes to github
 }

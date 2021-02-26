@@ -6,6 +6,9 @@
 \usage{
 pm_gh_pull_request()
 }
+\value{
+
+}
 \description{
 Pull down latest version of the project
 }

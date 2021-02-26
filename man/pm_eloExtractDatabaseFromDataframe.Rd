@@ -10,10 +10,10 @@ pm_eloExtractDatabaseFromDataframe(eloDataframe)
 \item{eloDataframe}{A dataframe resulting from a call to pm_eloRunTimeSlice or pm_eloRunMultipleTimeSclies}
 }
 \value{
-a list with two items: a hashmap for ELO scores, a hashmap for number of matches played
+a list with two items: a dictionary for ELO scores, a dictionary for number of matches played
 }
 \description{
-Prepare hashmaps for playerScore and playerMatches for seen data (i.e. from a dataframe that has already had pm_eloRunTimeSlice on it).
+Prepare dictionarys for playerScore and playerMatches for seen data (i.e. from a dataframe that has already had pm_eloRunTimeSlice on it).
 }
 \examples{
 

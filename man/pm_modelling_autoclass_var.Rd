@@ -9,6 +9,9 @@ pm_modelling_autoclass_var(dependent_var, independent_var, mycp = 0.005)
 \arguments{
 \item{mycp}{}
 }
+\value{
+
+}
 \description{
 pm_modelling_autoclass_var
 }

@@ -9,6 +9,9 @@ pm_dq_checkColumn(df, colname)
 \arguments{
 \item{colname}{}
 }
+\value{
+
+}
 \description{
 Title
 }

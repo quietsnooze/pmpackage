@@ -9,6 +9,9 @@ pm_tennis_eloify_dataset(my_raw_data)
 \arguments{
 \item{my_raw_data}{}
 }
+\value{
+
+}
 \description{
 Convert raw data into an Elo-friendly format
 }

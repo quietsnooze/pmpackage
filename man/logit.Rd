@@ -9,6 +9,9 @@ logit(pr, use_ceiling_and_floor = TRUE)
 \arguments{
 \item{pr}{}
 }
+\value{
+
+}
 \description{
 Adjusts for probability == 100% and probability == 0% by applying a ceiling and a floor
 }

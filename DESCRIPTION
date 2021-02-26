@@ -9,10 +9,9 @@ Description: More about what it does (maybe more than one line)
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 6.1.1
+RoxygenNote: 7.1.1
 Imports: 
     tidyverse,
-    hashmap,
     magrittr,
     dplyr,
     data.table,
@@ -28,4 +27,5 @@ Imports:
     purrr,
     rlang,
     patchwork,
-    rpart
+    rpart,
+    collections

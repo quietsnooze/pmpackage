@@ -9,6 +9,9 @@ pm_modelling_full_autoclass_var(df, dependent_var, independent_var)
 \arguments{
 \item{independent_var}{}
 }
+\value{
+
+}
 \description{
 pm_modelling_full_autoclass_var
 }

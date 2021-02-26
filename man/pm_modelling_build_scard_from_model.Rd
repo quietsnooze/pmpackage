@@ -4,11 +4,18 @@
 \alias{pm_modelling_build_scard_from_model}
 \title{pm_modelling_build_scard_from_model}
 \usage{
-pm_modelling_build_scard_from_model(mymodel, mypdo = 20,
-  myone2one = 500, invert = FALSE)
+pm_modelling_build_scard_from_model(
+  mymodel,
+  mypdo = 20,
+  myone2one = 500,
+  invert = FALSE
+)
 }
 \arguments{
 \item{invert}{}
+}
+\value{
+
 }
 \description{
 pm_modelling_build_scard_from_model

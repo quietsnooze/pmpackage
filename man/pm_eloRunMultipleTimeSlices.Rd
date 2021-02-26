@@ -4,13 +4,20 @@
 \alias{pm_eloRunMultipleTimeSlices}
 \title{pm_eloRunMulitpleTimeSlices}
 \usage{
-pm_eloRunMultipleTimeSlices(eloDB, matchDB, eloDF, tennisElo = TRUE,
-  Cfactor = 250, Coffset = 5, Cshape = 0.4)
+pm_eloRunMultipleTimeSlices(
+  eloDB,
+  matchDB,
+  eloDF,
+  tennisElo = TRUE,
+  Cfactor = 250,
+  Coffset = 5,
+  Cshape = 0.4
+)
 }
 \arguments{
-\item{eloDB}{a hashmap of player ELO scores}
+\item{eloDB}{a dictionary of player ELO scores}
 
-\item{matchDB}{a hashmap of matches a player has played}
+\item{matchDB}{a dictionary of matches a player has played}
 
 \item{eloDF}{a dataframe of matches to process. Requires at least 'player_name', 'opponent_name', 'match_date' columns}
 }

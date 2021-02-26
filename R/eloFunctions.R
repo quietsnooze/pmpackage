@@ -14,16 +14,16 @@ usethis::use_package('tibble')
 
 #' pm_eloPrepDatabase
 #'
-#' Prepare hashmaps for playerScore and playerMatches for unseen data (i.e. new players).
+#' Prepare dictionaries for playerScore and playerMatches for unseen data (i.e. new players).
 #' If the database does not exist (eloDB=NA) a new database will be generated.
 #'
-#' @param eloDB a hashmap of player ELO scores, or NA to create a new one
-#' @param matchDB a hashmap of matches a player has played, or NA
+#' @param eloDB a dictionary of player ELO scores, or NA to create a new one
+#' @param matchDB a dictionary of matches a player has played, or NA
 #' @param unseenDataPlayers list of players in the (as yet) unseen data
 #' @param defaultScore the ELO for players without experience. Default of 1500
 #' @param defaultMatches the number of matches for new players. Default of 0
 #'
-#' @return a list with two items: a hashmap for ELO scores, a hashmap for number of matches played
+#' @return a list with two items: a dictionary for ELO scores, a dictionary for number of matches played
 #'
 #' @examples
 #'
@@ -63,11 +63,11 @@ pm_eloPrepDatabase = function(eloDB=NA,
 
 #' pm_eloExtractDatabaseFromDataframe
 #'
-#' Prepare hashmaps for playerScore and playerMatches for seen data (i.e. from a dataframe that has already had pm_eloRunTimeSlice on it).
+#' Prepare dictionarys for playerScore and playerMatches for seen data (i.e. from a dataframe that has already had pm_eloRunTimeSlice on it).
 #'
 #' @param eloDataframe A dataframe resulting from a call to pm_eloRunTimeSlice or pm_eloRunMultipleTimeSclies
 #'
-#' @return a list with two items: a hashmap for ELO scores, a hashmap for number of matches played
+#' @return a list with two items: a dictionary for ELO scores, a dictionary for number of matches played
 #'
 #' @examples
 #'
@@ -91,7 +91,7 @@ pm_eloExtractDatabaseFromDataframe = function(eloDataframe){
     dplyr::filter(match_date == max(match_date)) %>%
     dplyr::ungroup()
 
-  message('pm_eloExtractDatabaseFromDataframe: both sides computed, now creating hashmap')
+  message('pm_eloExtractDatabaseFromDataframe: both sides computed, now creating dictionary')
 
   eloDB = collections::dict()
   matchDB = collections::dict()
@@ -151,15 +151,15 @@ pm_eloTidifyDataframe = function(eloDataframe){
 #'
 #' Compute and update ELO scores for a single time slice. Within the time slice all matches are assumed to be happening in parallel.
 #'
-#' @param eloDB a hashmap of player ELO scores
-#' @param matchDB a hashmap of matches a player has played
+#' @param eloDB a dictionary of player ELO scores
+#' @param matchDB a dictionary of matches a player has played
 #' @param simDF a dataframe of matches to process. Requires at least 'player_name', 'opponent_name' and 'actualResult' columns
 #' @param simulateResults Whether to overwrite actualResult with simulated outcomes
 #'
 #' @return a list with three items: the updated eloDB, the updated matchDB and the input simDF updated with ELO columns. New columns are prefixed with 'elo_'
 #'
 #' @examples
-#' tmpres = pm_eloPrepDatabase(unseenDataPlayers=c('bob','charlie'))
+#' tmpres = pm_eloPrepDatabase(unseenDataPlayers=c('bob','charlie','david'))
 #' eloDB = tmpres$eloDB
 #' matchDB = tmpres$matchDB
 #' mysim = tibble::tribble(~player_name,~opponent_name,~match_date,~actualResult,
@@ -182,12 +182,15 @@ pm_eloRunTimeSlice <- function(eloDB,
     message('simulating results')
     simDF$actualResult = 0.5 #default prediction
 
+    for (i in 1:nrow(simDF)){
+      simDF[i,"elo_player_prior_elo"] = eloDB$get(as.character(simDF[i,"player_name"]))
+      simDF[i,"elo_opponent_prior_elo"] = eloDB$get(as.character(simDF[i,"opponent_name"]))
+      simDF[i,"elo_player_prior_matches"] = matchDB$get(as.character(simDF[i,"player_name"]))
+      simDF[i,"elo_opponent_prior_matches"] = matchDB$get(as.character(simDF[i,"opponent_name"]))
+    }
+
     simDF = simDF %>%
       dplyr::mutate(
-        elo_player_prior_elo = eloDB$find(player_name),
-        elo_opponent_prior_elo = eloDB$find(opponent_name),
-        elo_player_prior_matches = matchDB$find(player_name),
-        elo_opponent_prior_matches = matchDB$find(opponent_name),
         elo_player_pred_score = jitter(1/(1+10^((elo_opponent_prior_elo - elo_player_prior_elo)/400)),0.00001),
         elo_Kfactor_player = Cfactor / ((elo_player_prior_matches + Coffset)^Cshape),
         elo_Kfactor_opponent = Cfactor / ((elo_opponent_prior_matches + Coffset)^Cshape),
@@ -205,13 +208,18 @@ pm_eloRunTimeSlice <- function(eloDB,
     if(any(is.na(simDF$actualResult))){
       stop('Missing actual results in elo dataframe')
     }
+
+
+    for (i in 1:nrow(simDF)){
+      simDF[i,"elo_player_prior_elo"] = eloDB$get(as.character(simDF[i,"player_name"]))
+      simDF[i,"elo_opponent_prior_elo"] = eloDB$get(as.character(simDF[i,"opponent_name"]))
+      simDF[i,"elo_player_prior_matches"] = matchDB$get(as.character(simDF[i,"player_name"]))
+      simDF[i,"elo_opponent_prior_matches"] = matchDB$get(as.character(simDF[i,"opponent_name"]))
+    }
+
     simDF = simDF %>%
       dplyr::mutate(
         elo_simulate_Results = simulateResults,
-        elo_player_prior_elo = eloDB$find(player_name),
-        elo_opponent_prior_elo = eloDB$find(opponent_name),
-        elo_player_prior_matches = matchDB$find(player_name),
-        elo_opponent_prior_matches = matchDB$find(opponent_name),
         elo_player_pred_score = jitter(1/(1+10^((elo_opponent_prior_elo - elo_player_prior_elo)/400)),0.0001),
         elo_Kfactor_player = Cfactor / ((elo_player_prior_matches + Coffset)^Cshape),
         elo_Kfactor_opponent = Cfactor / ((elo_opponent_prior_matches + Coffset)^Cshape),
@@ -245,8 +253,8 @@ pm_eloRunTimeSlice <- function(eloDB,
 #'
 #' Compute and update ELO scores for multiple time slices. Within each individual time slice all matches are assumed to be happening in parallel.
 #'
-#' @param eloDB a hashmap of player ELO scores
-#' @param matchDB a hashmap of matches a player has played
+#' @param eloDB a dictionary of player ELO scores
+#' @param matchDB a dictionary of matches a player has played
 #' @param eloDF a dataframe of matches to process. Requires at least 'player_name', 'opponent_name', 'match_date' columns
 #'
 #' @return a list with three items: the updated eloDB, the updated matchDB and the input eloDF updated with ELO columns. New columns are prefixed with 'elo_'
@@ -312,7 +320,7 @@ pm_eloRunMultipleTimeSlices <- function(eloDB,
 
 #' pm_eloReportElosAtDateFromDatabase
 #'
-#' Prepare hashmaps for playerScore and playerMatches for unseen data (i.e. new players).
+#' Prepare dictionarys for playerScore and playerMatches for unseen data (i.e. new players).
 #' If the database does not exist (eloDB=NA) a new database will be generated.
 #'
 #' @param eloDF A dataframe containing elo_x data
@@ -484,8 +492,8 @@ pm_eloOptimiseKfactor <- function(eloSamp){
 #'
 #' Run a simulated Tournament based on input ELO databases and a dataframe that describes the draw
 #'
-#' @param eloDB a hashmap of player ELO scores, or NA to create a new one
-#' @param matchDB a hashmap of matches a player has played, or NA
+#' @param eloDB a dictionary of player ELO scores, or NA to create a new one
+#' @param matchDB a dictionary of matches a player has played, or NA
 #' @param tournamentSetup A dataframe strucutred to describe the tournament
 #' @param keyCols Key columns for reporting results (DO NOT CHANGE FOR NOW)
 #' @param simCols Key columsn for debugging results (DO NOT CHANGE FOR NOW)
@@ -593,8 +601,8 @@ pm_eloRunTourneyELO = function(   tournamentSetup,
 #'
 #' Sets up a parallel simulation of a tournament
 #'
-#' @param eloDB a hashmap of player ELO scores, or NA to create a new one
-#' @param matchDB a hashmap of matches a player has played, or NA
+#' @param eloDB a dictionary of player ELO scores, or NA to create a new one
+#' @param matchDB a dictionary of matches a player has played, or NA
 #' @param ds A dataframe structured to describe the tournament
 #' @param keyCols Key columns for reporting results (DO NOT CHANGE FOR NOW)
 #' @param simCols Key columsn for debugging results (DO NOT CHANGE FOR NOW)
@@ -628,7 +636,7 @@ pm_eloSimulateTournamentInParallel = function(ds,
   # Option to wipe database and start again
   if (resetDatabase){
     message('resetting database')
-    result = pm_eloRunTourneyELO(tournamentSetup=ds, roundeloDB = hashmap::clone(eloDBForSim), roundmatchDB=hashmap::clone(matchDBForSim))
+    result = pm_eloRunTourneyELO(tournamentSetup=ds, roundeloDB = collections::dict(eloDBForSim$as_list()), roundmatchDB=collections::dict(matchDBForSim$as_list()))
     dfListOfSims = as.data.frame(result[length(result$player_name),winnerName,])
     names(dfListOfSims) = c('winnerName')
     dfListOfSims$run_timestamp = run_timestamp
@@ -657,14 +665,14 @@ pm_eloSimulateTournamentInParallel = function(ds,
 
     if (forceSingleThreaded){
       result=pm_eloRunTourneyELO(tournamentSetup=ds,
-                           roundeloDB = hashmap::clone(eloDBForSim),
-                           roundmatchDB=hashmap::clone(matchDBForSim))
+                           roundeloDB = collections::dict(eloDBForSim$as_list()),
+                           roundmatchDB=collections::dict(matchDBForSim$as_list()))
       resultp = as.data.frame(result[length(result$player_name),winnerName,])
     } else {
       resultp = foreach::foreach(i=1:foreach::getDoParWorkers(), .combine=rbind) %dopar% {
         result = pm_eloRunTourneyELO(tournamentSetup=ds,
-                               roundeloDB = hashmap::clone(eloDBForSim),
-                               roundmatchDB=hashmap::clone(matchDBForSim)
+                               roundeloDB = collections::dict(eloDBForSim$as_list()),
+                               roundmatchDB=collections::dict(matchDBForSim$as_list())
         )
         result = as.data.frame(result[length(result$player_name),winnerName,])
         result

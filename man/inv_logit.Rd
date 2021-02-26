@@ -9,6 +9,9 @@ inv_logit(lgt)
 \arguments{
 \item{lgt}{}
 }
+\value{
+
+}
 \description{
 Inverse logit of log odds lgt
 }

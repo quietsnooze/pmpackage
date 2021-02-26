@@ -4,11 +4,19 @@
 \alias{pm_modelling_score_dataframe}
 \title{pm_modelling_score_dataframe}
 \usage{
-pm_modelling_score_dataframe(df, scorecard, myone2one = 500,
-  mypdo = 20, invert = FALSE)
+pm_modelling_score_dataframe(
+  df,
+  scorecard,
+  myone2one = 500,
+  mypdo = 20,
+  invert = FALSE
+)
 }
 \arguments{
 \item{mypdo}{}
+}
+\value{
+
 }
 \description{
 pm_modelling_score_dataframe

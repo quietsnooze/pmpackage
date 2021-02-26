@@ -9,6 +9,9 @@ pm_modelling_compare_player_opponent(df, varname)
 \arguments{
 \item{varname}{}
 }
+\value{
+
+}
 \description{
 Ratios and differences of variable
 }

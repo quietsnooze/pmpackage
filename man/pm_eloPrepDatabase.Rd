@@ -4,13 +4,18 @@
 \alias{pm_eloPrepDatabase}
 \title{pm_eloPrepDatabase}
 \usage{
-pm_eloPrepDatabase(eloDB = NA, matchDB = NA, unseenDataPlayers,
-  defaultScore = 1500, defaultMatches = 0)
+pm_eloPrepDatabase(
+  eloDB = NA,
+  matchDB = NA,
+  unseenDataPlayers,
+  defaultScore = 1500,
+  defaultMatches = 0
+)
 }
 \arguments{
-\item{eloDB}{a hashmap of player ELO scores, or NA to create a new one}
+\item{eloDB}{a dictionary of player ELO scores, or NA to create a new one}
 
-\item{matchDB}{a hashmap of matches a player has played, or NA}
+\item{matchDB}{a dictionary of matches a player has played, or NA}
 
 \item{unseenDataPlayers}{list of players in the (as yet) unseen data}
 
@@ -19,10 +24,10 @@ pm_eloPrepDatabase(eloDB = NA, matchDB = NA, unseenDataPlayers,
 \item{defaultMatches}{the number of matches for new players. Default of 0}
 }
 \value{
-a list with two items: a hashmap for ELO scores, a hashmap for number of matches played
+a list with two items: a dictionary for ELO scores, a dictionary for number of matches played
 }
 \description{
-Prepare hashmaps for playerScore and playerMatches for unseen data (i.e. new players).
+Prepare dictionaries for playerScore and playerMatches for unseen data (i.e. new players).
 If the database does not exist (eloDB=NA) a new database will be generated.
 }
 \examples{

@@ -9,6 +9,9 @@ pm_tennis_fetchAllDatasets(competition = "WTA")
 \arguments{
 \item{competition}{}
 }
+\value{
+
+}
 \description{
 Get all available historical data
 }

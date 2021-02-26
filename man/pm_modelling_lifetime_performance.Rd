@@ -9,6 +9,9 @@ pm_modelling_lifetime_performance(df, group_variables = NA)
 \arguments{
 \item{group_variables}{vector of variables to calculate lifetime vars by (e.g. 'surface')}
 }
+\value{
+
+}
 \description{
 Workout lifetime win and loss rates
 }

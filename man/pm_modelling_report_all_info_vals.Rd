@@ -9,6 +9,9 @@ pm_modelling_report_all_info_vals(df, dependent_var)
 \arguments{
 \item{dependent_var}{}
 }
+\value{
+
+}
 \description{
 Calculate the information values for an entire dataframe
 }

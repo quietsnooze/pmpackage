@@ -9,6 +9,9 @@ pm_tennis_fetchDataset(myyear, competition = "WTA")
 \arguments{
 \item{competition}{'WTA' by default}
 }
+\value{
+
+}
 \description{
 Fetch tennis results from www.tennis-data.co.uk
 }
