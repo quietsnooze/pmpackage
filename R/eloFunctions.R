@@ -1,5 +1,5 @@
 usethis::use_package('magrittr')
-usethis::use_package('hashmap')
+usethis::use_package('collections')
 usethis::use_package('dplyr')
 usethis::use_package('data.table')
 usethis::use_package('doParallel')
@@ -38,18 +38,22 @@ pm_eloPrepDatabase = function(eloDB=NA,
 
   # if no database than create one
   if (is.na(eloDB)){
-    eloDB = hashmap::hashmap(unseenDataPlayers,
-                                   rep(defaultScore,length(unseenDataPlayers)))
-    matchDB = hashmap::hashmap(unseenDataPlayers,
-                                     rep(defaultMatches,length(unseenDataPlayers)))
+    eloDB = collections::dict()
+    matchDB = collections::dict()
+    for (i in 1:length(unseenDataPlayers)){
+      eloDB$set(unseenDataPlayers[i],
+                defaultScore)
+      matchDB$set(unseenDataPlayers[i],
+                  defaultMatches)
+    }
   } else {
-    newNames = unseenDataPlayers[!eloDB$has_keys(unseenDataPlayers)]
+    newNames = unseenDataPlayers[!unseenDataPlayers %in% eloDB$keys()]
 
-    newScores = rep(defaultScore,length(newNames))
-    eloDB$insert(newNames,newScores)
+    for (i in 1:length(newNames)){
+      eloDB$set(newNames[i],defaultScore)
+      matchDB$set(newNames[i],defaultMatches)
+    }
 
-    newMatches = rep(defaultMatches,length(newNames))
-    matchDB$insert(newNames,newMatches)
   }
 
   #return updated database
@@ -89,11 +93,12 @@ pm_eloExtractDatabaseFromDataframe = function(eloDataframe){
 
   message('pm_eloExtractDatabaseFromDataframe: both sides computed, now creating hashmap')
 
-  eloDB = hashmap::hashmap(both$player_name,
-                           both$elo_player_post_elo)
-
-  matchDB = hashmap::hashmap(both$player_name,
-                             both$elo_player_post_matches)
+  eloDB = collections::dict()
+  matchDB = collections::dict()
+  for (i in 1:nrow(both)){
+    eloDB$set(both$plalyer_name[i],both$elo_player_post_elo[i])
+    matchDB$set(both$player_name[i],both$elo_player_post_matches[i])
+  }
   #return updated database
   list(eloDB = eloDB,
        matchDB = matchDB)
@@ -223,10 +228,12 @@ pm_eloRunTimeSlice <- function(eloDB,
 
 
   #update databases
-  eloDB$insert(simDF$player_name,simDF$elo_player_post_elo)
-  eloDB$insert(simDF$opponent_name,simDF$elo_opponent_post_elo)
-  matchDB$insert(simDF$player_name,simDF$elo_player_post_matches)
-  matchDB$insert(simDF$opponent_name,simDF$elo_opponent_post_matches)
+  for (i in 1:nrow(simDF)){
+    eloDB$set(simDF$player_name[i],simDF$elo_player_post_elo[i])
+    eloDB$set(simDF$opponent_name[i],simDF$elo_opponent_post_elo[i])
+    matchDB$set(simDF$player_name[i],simDF$elo_player_post_matches[i])
+    matchDB$set(simDF$opponent_name[i],simDF$elo_opponent_post_matches[i])
+  }
 
   #return list
   list(eloDB = eloDB,
