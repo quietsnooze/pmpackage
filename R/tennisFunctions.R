@@ -106,7 +106,7 @@ pm_tennis_fetchDataset <- function(myyear,
   tf = tempfile(tmpdir=td, fileext=".zip")
 
   myfilename <- unlist(availableFiles[paste0("y",myyear)])
-  download.file(myfilename,tf)
+  download.file(myfilename,tf,mode='wb')
 
   fname = unzip(tf, list=TRUE)$Name[1]
   # unzip the file to the temporary directory
