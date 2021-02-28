@@ -23,39 +23,39 @@ pm_tennis_fetchDataset <- function(myyear,
 
   if (competition == 'WTA'){
     availableFiles <- list(
-      'y2007' = 'http://www.tennis-data.co.uk/2007w/2007.zip',
-      'y2008' = 'http://www.tennis-data.co.uk/2008w/2008.zip',
-      'y2009' = 'http://www.tennis-data.co.uk/2009w/2009.zip',
-      'y2010' = 'http://www.tennis-data.co.uk/2009w/2009.zip',
-      'y2011' = 'http://www.tennis-data.co.uk/2011w/2011.zip',
-      'y2012' = 'http://www.tennis-data.co.uk/2012w/2012.zip',
-      'y2013' = 'http://www.tennis-data.co.uk/2013w/2013.zip',
-      'y2014' = 'http://www.tennis-data.co.uk/2014w/2014.zip',
-      'y2015' = 'http://www.tennis-data.co.uk/2015w/2015.zip',
-      'y2016' = 'http://www.tennis-data.co.uk/2016w/2016zip',
-      'y2017' = 'http://www.tennis-data.co.uk/2017w/2017zip',
-      'y2018' = 'http://www.tennis-data.co.uk/2018w/2018zip'
+      'y2007' = 'http://www.tennis-data.co.uk/2007w/2007.xls',
+      'y2008' = 'http://www.tennis-data.co.uk/2008w/2008.xls',
+      'y2009' = 'http://www.tennis-data.co.uk/2009w/2009.xls',
+      'y2010' = 'http://www.tennis-data.co.uk/2009w/2009.xls',
+      'y2011' = 'http://www.tennis-data.co.uk/2011w/2011.xls',
+      'y2012' = 'http://www.tennis-data.co.uk/2012w/2012.xls',
+      'y2013' = 'http://www.tennis-data.co.uk/2013w/2013.xlsx',
+      'y2014' = 'http://www.tennis-data.co.uk/2014w/2014.xlsx',
+      'y2015' = 'http://www.tennis-data.co.uk/2015w/2015.xlsx',
+      'y2016' = 'http://www.tennis-data.co.uk/2016w/2016.xlsx',
+      'y2017' = 'http://www.tennis-data.co.uk/2017w/2017.xlsx',
+      'y2018' = 'http://www.tennis-data.co.uk/2018w/2018.xlsx'
     )
   } else if (competition == 'ATP'){
     availableFiles <- list(
-      'y2001' = 'http://www.tennis-data.co.uk/2001/2001.zip',
-      'y2002' = 'http://www.tennis-data.co.uk/2002/2002.zip',
-      'y2003' = 'http://www.tennis-data.co.uk/2003/2003.zip',
-      'y2004' = 'http://www.tennis-data.co.uk/2004/2004.zip',
-      'y2005' = 'http://www.tennis-data.co.uk/2005/2005.zip',
-      'y2006' = 'http://www.tennis-data.co.uk/2006/2006.zip',
-      'y2007' = 'http://www.tennis-data.co.uk/2007/2007.zip',
-      'y2008' = 'http://www.tennis-data.co.uk/2008/2008.zip',
-      'y2009' = 'http://www.tennis-data.co.uk/2009/2009.zip',
-      'y2010' = 'http://www.tennis-data.co.uk/2010/2010.zip',
-      'y2011' = 'http://www.tennis-data.co.uk/2011/2011.zip',
-      'y2012' = 'http://www.tennis-data.co.uk/2012/2012.zip',
-      'y2013' = 'http://www.tennis-data.co.uk/2013/2013.zip',
-      'y2014' = 'http://www.tennis-data.co.uk/2014/2014.zip',
-      'y2015' = 'http://www.tennis-data.co.uk/2015/2015.zip',
-      'y2016' = 'http://www.tennis-data.co.uk/2016/2016.zip',
-      'y2017' = 'http://www.tennis-data.co.uk/2017/2017.zip',
-      'y2018' = 'http://www.tennis-data.co.uk/2018/2018.zip'
+      'y2001' = 'http://www.tennis-data.co.uk/2001/2001.xls',
+      'y2002' = 'http://www.tennis-data.co.uk/2002/2002.xls',
+      'y2003' = 'http://www.tennis-data.co.uk/2003/2003.xls',
+      'y2004' = 'http://www.tennis-data.co.uk/2004/2004.xls',
+      'y2005' = 'http://www.tennis-data.co.uk/2005/2005.xls',
+      'y2006' = 'http://www.tennis-data.co.uk/2006/2006.xls',
+      'y2007' = 'http://www.tennis-data.co.uk/2007/2007.xls',
+      'y2008' = 'http://www.tennis-data.co.uk/2008/2008.xls',
+      'y2009' = 'http://www.tennis-data.co.uk/2009/2009.xls',
+      'y2010' = 'http://www.tennis-data.co.uk/2010/2010.xls',
+      'y2011' = 'http://www.tennis-data.co.uk/2011/2011.xls',
+      'y2012' = 'http://www.tennis-data.co.uk/2012/2012.xls',
+      'y2013' = 'http://www.tennis-data.co.uk/2013/2013.xlsx',
+      'y2014' = 'http://www.tennis-data.co.uk/2014/2014.xlsx',
+      'y2015' = 'http://www.tennis-data.co.uk/2015/2015.xlsx',
+      'y2016' = 'http://www.tennis-data.co.uk/2016/2016.xlsx',
+      'y2017' = 'http://www.tennis-data.co.uk/2017/2017.xlsx',
+      'y2018' = 'http://www.tennis-data.co.uk/2018/2018.xlsx'
     )
   }
 
@@ -101,18 +101,15 @@ pm_tennis_fetchDataset <- function(myyear,
     'wta'
   )
 
-  td = tempdir()
-  # create the placeholder file
-  tf = tempfile(tmpdir=td, fileext=".zip")
 
   myfilename <- unlist(availableFiles[paste0("y",myyear)])
-  download.file(myfilename,tf,mode='wb')
 
-  fname = unzip(tf, list=TRUE)$Name[1]
-  # unzip the file to the temporary directory
-  unzip(tf, files=fname, exdir=td, overwrite=TRUE)
-  # fpath is the full path to the extracted file
-  fpath = file.path(td, fname)
+  td = tempdir()
+  tfe = stringr::str_extract(myfilename,"\\.xls.*$")
+  tf = tempfile(tmpdir=td, fileext=tfe)
+  download.file(myfilename,tf)
+
+  fpath = tf
 
   if (competition == 'WTA'){
     dfMatch <- readxl::read_excel(fpath, guess_max = Inf) %>%
