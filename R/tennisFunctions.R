@@ -107,7 +107,7 @@ pm_tennis_fetchDataset <- function(myyear,
   td = tempdir()
   tfe = stringr::str_extract(myfilename,"\\.xls.*$")
   tf = tempfile(tmpdir=td, fileext=tfe)
-  download.file(myfilename,tf)
+  download.file(myfilename,tf,mode="wb")
 
   fpath = tf
 
