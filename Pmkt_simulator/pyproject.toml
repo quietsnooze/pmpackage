@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "pmkt_simulator"
+version = "0.1.0"
+description = "A Python package for PM/market simulation"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "quietsnooze"}
+]
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["pmkt_simulator*"]
