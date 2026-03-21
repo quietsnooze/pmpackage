@@ -114,7 +114,7 @@ pm_tennis_fetchDataset <- function(myyear,
   if (competition == 'WTA'){
     dfMatch <- readxl::read_excel(fpath, guess_max = Inf) %>%
       janitor::clean_names() %>%
-      tibble::as.tibble() %>%
+      tibble::as_tibble() %>%
       dplyr::select(-one_of(tolower(extraVars))) %>%
       dplyr::rename(match_date = date,
                     series = tier,
@@ -132,7 +132,7 @@ pm_tennis_fetchDataset <- function(myyear,
   } else if (competition == 'ATP'){
     dfMatch <- readxl::read_excel(fpath, guess_max = Inf) %>%
       janitor::clean_names() %>%
-      tibble::as.tibble() %>%
+      tibble::as_tibble() %>%
       dplyr::select(-one_of(tolower(extraVars))) %>%
       dplyr::rename(match_date = date,
                     match_location = location) %>%

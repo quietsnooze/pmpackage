@@ -28,4 +28,6 @@ Imports:
     rlang,
     patchwork,
     rpart,
-    collections
+    collections,
+    broom,
+    grid

@@ -11,7 +11,7 @@
 #' @examples
 #' @importFrom magrittr "%>%"
 pm_dq_checkColumn = function(df,colname){
-  testData = df %>% select_(colname) %>% pull()
+  testData = df %>% dplyr::select(dplyr::all_of(colname)) %>% pull()
 
   ctd <- class(testData[1])[1]
   #print(ctd)

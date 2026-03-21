@@ -96,7 +96,7 @@ pm_eloExtractDatabaseFromDataframe = function(eloDataframe){
   eloDB = collections::dict()
   matchDB = collections::dict()
   for (i in 1:nrow(both)){
-    eloDB$set(both$plalyer_name[i],both$elo_player_post_elo[i])
+    eloDB$set(both$player_name[i],both$elo_player_post_elo[i])
     matchDB$set(both$player_name[i],both$elo_player_post_matches[i])
   }
   #return updated database
@@ -736,7 +736,7 @@ pm_eloSimulateTournamentInParallel = function(ds,
 #'
 #'
 pm_eloReportTournamentStats <- function(df){
-  dfAllResults = tibble::as.tibble(df) %>%
+  dfAllResults = tibble::as_tibble(df) %>%
     dplyr::mutate_if(is.factor, as.character) %>%
     dplyr::mutate(totresults = n()) %>%
     dplyr::group_by(winnerName) %>%

@@ -129,12 +129,12 @@ pm_modelling_lifetime_performance <- function(df,group_variables=NA){
 
   #convert players and opponents to same scale
   df_tidy <- df %>%
-    select_(.dots = core_variables) %>%
+    dplyr::select(dplyr::all_of(core_variables)) %>%
     pm_modelling_tidify_player_opponent_dataframe(additional_variables = group_variables[!group_variables == 'player_name'])
 
 
   df_tidy_adj <- df_tidy %>%
-    dplyr::group_by_(.dots=group_variables) %>%
+    dplyr::group_by(dplyr::across(dplyr::all_of(group_variables))) %>%
     dplyr::arrange(match_date) %>%
     dplyr::mutate(inverseActualResult = 1- actualResult,
                   xxx_lifetime_wins = cumsum(actualResult) - actualResult,
@@ -666,9 +666,10 @@ pm_modelling_score_dataframe <- function(df,
 
 
   t1 <- df %>%
-    tidyr::gather(key=term,
-           value=value,
-           -pm_modelling_primary_key) %>%
+    tidyr::pivot_longer(cols = -pm_modelling_primary_key,
+                        names_to = 'term',
+                        values_to = 'value',
+                        values_transform = list(value = as.character)) %>%
     dplyr::mutate(value = ifelse(is.na(value),'NA',value)) %>%
     dplyr::inner_join(scorecard) %>%
     dplyr::group_by(pm_modelling_primary_key) %>%
