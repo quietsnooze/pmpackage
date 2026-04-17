@@ -96,7 +96,7 @@ pm_eloExtractDatabaseFromDataframe = function(eloDataframe){
   eloDB = collections::dict()
   matchDB = collections::dict()
   for (i in 1:nrow(both)){
-    eloDB$set(both$plalyer_name[i],both$elo_player_post_elo[i])
+    eloDB$set(both$player_name[i],both$elo_player_post_elo[i])
     matchDB$set(both$player_name[i],both$elo_player_post_matches[i])
   }
   #return updated database
@@ -611,6 +611,10 @@ pm_eloRunTourneyELO = function(   tournamentSetup,
 #' @param tournamentName The name of hte tournament _simulation_ (e.g. 'wimbledon 07')
 #' @param resetDatabase Overwrite any existing predictions for tournamentName
 #' @param forceSingleThreaded Force only a single thread to be used
+#' @param save_dir Directory in which the per-run \code{sim_<tournamentName>.rda}
+#'   file is written and read. Defaults to \code{tempdir()} so the caller's
+#'   working directory is not polluted; pass an explicit path to persist
+#'   results across sessions.
 #'
 #' @return A dataframe with winners (simWinner, winnerName) for each match in the Tournament
 #'
@@ -630,8 +634,10 @@ pm_eloSimulateTournamentInParallel = function(ds,
                                               maxTimeSecs=999999999999,
                                               tournamentName = 'default',
                                               resetDatabase = FALSE,
-                                              forceSingleThreaded = FALSE){
+                                              forceSingleThreaded = FALSE,
+                                              save_dir = tempdir()){
   run_timestamp = Sys.time()
+  sim_file = file.path(save_dir, paste0('sim_', tournamentName, '.rda'))
 
   # Option to wipe database and start again
   if (resetDatabase){
@@ -642,7 +648,7 @@ pm_eloSimulateTournamentInParallel = function(ds,
     dfListOfSims$run_timestamp = run_timestamp
     message('resetting database: first entry ready')
     print(dfListOfSims)
-    save(dfListOfSims,file=paste0('sim_',tournamentName,'.rda'))
+    save(dfListOfSims,file=sim_file)
     message('resetting database: saved!')
   }
 
@@ -685,9 +691,9 @@ pm_eloSimulateTournamentInParallel = function(ds,
     message('updating simulation log')
     names(resultp) = c('winnerName')
     resultp$run_timestamp = run_timestamp
-    load(paste0('sim_',tournamentName,'.rda'))
+    load(sim_file)
     dfListOfSims = rbind(dfListOfSims,resultp)
-    save(dfListOfSims,file=paste0('sim_',tournamentName,'.rda'))
+    save(dfListOfSims,file=sim_file)
     message('simulation log updated')
 
     setTxtProgressBar(pb, i)

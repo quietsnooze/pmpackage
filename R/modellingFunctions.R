@@ -230,6 +230,14 @@ pm_modelling_iv <- function(dv,iv){
     tdf$grouped_var <- addNA(cut(tdf$iv,breaks = myq))
   }
 
+  total_events <- sum(tdf$dv == 1, na.rm = TRUE)
+  total_nonevents <- nrow(tdf) - total_events
+  if (total_events == 0 || total_nonevents == 0) {
+    stop("pm_modelling_iv: dependent variable has only one class ",
+         "(tot_event=", total_events, ", tot_nonevent=", total_nonevents,
+         "); information value is undefined.")
+  }
+
   tdf <- tdf %>%
     dplyr::mutate(tot_event = sum(dv==1,na.rm=TRUE),
                   tot_nonevent = n() - tot_event) %>%
@@ -243,7 +251,8 @@ pm_modelling_iv <- function(dv,iv){
     dplyr::mutate(pct_event = event / tot_event,
                   pct_nonevent= nonevent / tot_nonevent,
                   woe = log(pct_event/pct_nonevent),
-                  info_val = (pct_event - pct_nonevent) * woe)
+                  info_val = (pct_event - pct_nonevent) * woe,
+                  info_val = ifelse(is.finite(info_val), info_val, 0))
 
   list(independent_varname = iv_name,
        dependent_varname = dv_name,
@@ -481,11 +490,21 @@ pm_modelling_calc_gini <- function(df,
     dplyr::summarise(truevar=sum(truevar,na.rm = TRUE),
                      inv_truevar = n() - truevar) %>%
     dplyr::ungroup() %>%
-    dplyr::arrange(-predvar) %>%
+    dplyr::arrange(-predvar)
+
+  total_wins <- sum(gini_df$truevar)
+  total_losses <- sum(gini_df$inv_truevar)
+  if (total_wins == 0 || total_losses == 0) {
+    stop("pm_modelling_calc_gini: truevar has only one class ",
+         "(wins=", total_wins, ", losses=", total_losses,
+         "); Gini is undefined.")
+  }
+
+  gini_df <- gini_df %>%
     dplyr::mutate(pm_modelling_gini_cumsum_wins = cumsum(truevar),
                   pm_modelling_gini_cumsum_losses = cumsum(inv_truevar),
-                  pm_modelling_gini_pct_wins = pm_modelling_gini_cumsum_wins / sum(truevar),
-                  pm_modelling_gini_pct_losses = pm_modelling_gini_cumsum_losses / sum(inv_truevar),
+                  pm_modelling_gini_pct_wins = pm_modelling_gini_cumsum_wins / total_wins,
+                  pm_modelling_gini_pct_losses = pm_modelling_gini_cumsum_losses / total_losses,
                   pm_modelling_gini_auc = (dplyr::lag(pm_modelling_gini_pct_wins,default=0) + 0.5*(pm_modelling_gini_pct_wins - dplyr::lag(pm_modelling_gini_pct_wins,default=0))) * (pm_modelling_gini_pct_losses - dplyr::lag(pm_modelling_gini_pct_losses,default = 0))) %>%
     dplyr::bind_rows(tibble(predvar=NA,
                             truevar=NA,
